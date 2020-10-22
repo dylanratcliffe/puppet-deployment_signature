@@ -1,0 +1,6 @@
+---
+Gemfile:
+  required:
+    ":development":
+      - gem: "jwt"
+      - gem: "pry"
