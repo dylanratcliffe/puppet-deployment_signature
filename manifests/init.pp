@@ -13,7 +13,7 @@
 #   include deployment_signature
 class deployment_signature (
   Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
-  String $signature_location = 'TODO',
+  String $signature_location = '/etc/puppetlabs/puppet/deployment_signatures',
   String $puppet_user        = 'pe-puppet',
   String $puppet_group       = 'pe-puppet',
 ) {
@@ -34,9 +34,14 @@ class deployment_signature (
     owner   => $puppet_user,
     group   => $puppet_group,
     mode    => '0644',
-    content => Setsitive(to_yaml({
+    content => Sensitive(to_yaml({
       'signing_secret'     => $signing_secret.unwrap,
       'signature_location' => $signature_location,
     })),
+  }
+
+  package { 'jwt':
+    ensure   => 'present',
+    provider => 'puppet_gem',
   }
 }

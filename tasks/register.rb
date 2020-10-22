@@ -7,7 +7,7 @@ params = JSON.parse(STDIN.read)
 ds = DeploymentSignature.new
 
 begin
-  ds.write(data['commit_hash'], params['data'])
+  ds.write(data['commit_hash'], data['environment'], params['data'])
 rescue StandardError => e
   puts({
     '_error' => {

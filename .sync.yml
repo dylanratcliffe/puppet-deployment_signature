@@ -4,3 +4,6 @@ Gemfile:
     ":development":
       - gem: "jwt"
       - gem: "pry"
+
+spec/spec_helper.rb:
+  mock_with: ":rspec"
