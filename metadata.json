@@ -2,7 +2,7 @@
   "name": "dylanratcliffe-deployment_signature",
   "version": "0.1.0",
   "author": "Dylan Ratcliffe",
-  "summary": "",
+  "summary": "Allows you to distribute deployment information to Puppet servers for independant verification",
   "license": "Apache-2.0",
   "source": "",
   "dependencies": [
