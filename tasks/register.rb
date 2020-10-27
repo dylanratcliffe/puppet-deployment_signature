@@ -7,7 +7,7 @@ params = JSON.parse(STDIN.read)
 ds = DeploymentSignature.new
 
 begin
-  ds.write(data['commit_hash'], data['environment'], params['data'])
+  ds.store(params['commit_hash'], params['environment'], params['data'])
 rescue StandardError => e
   puts({
     '_error' => {
@@ -23,6 +23,6 @@ end
 
 puts({
   'result'      => 'success',
-  'commit_hash' => data['commit_hash'],
+  'commit_hash' => params['commit_hash'],
 }.to_json)
 exit 0

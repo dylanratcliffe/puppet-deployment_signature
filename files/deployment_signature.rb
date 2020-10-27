@@ -38,13 +38,16 @@ class DeploymentSignature
     File.write(file, token)
   end
 
-  # Get a token from the storage location
-  def retrieve(sha, environment)
+  def retrieve_jwt(sha, environment)
     file = sig_file(environment, sha)
 
     raise "Signature file #{file} does not exist" unless File.file?(file)
 
-    return decode(File.read(file))[0]
+    return File.read(file)
+  end
+
+  def retrieve_data(sha, environment)
+    return decode(retrieve_jwt(sha, environment))[0]
   end
 
   def valid?(token)
