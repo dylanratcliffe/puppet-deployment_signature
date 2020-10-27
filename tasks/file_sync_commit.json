@@ -1,0 +1,33 @@
+{
+  "puppet_task_version": 1,
+  "supports_noop": false,
+  "description": "Commits to a file sync repo",
+  "input_method": "environment",
+  "parameters": {
+    "message": {
+      "description": "The commit message",
+      "type": "String",
+      "default": "Commit created using the deployment_signature::file_sync_commit task"
+    },
+    "name": {
+      "description": "Name that will be used as the author",
+      "type": "String",
+      "default": "File Sync Task"
+    },
+    "email": {
+      "description": "Email address of the author",
+      "type": "String",
+      "default": "filesync@test.com"
+    },
+    "repo_id": {
+      "description": "The ID if the repo to commit",
+      "type": "String",
+      "default": "puppet-code"
+    },
+    "submodule_id": {
+      "description": "The name of the submodule to commit. This is usually the name of the environment",
+      "type": "String",
+      "default": "production"
+    }
+  }
+}

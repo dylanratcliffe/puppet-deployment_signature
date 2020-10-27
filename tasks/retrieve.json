@@ -1,0 +1,16 @@
+{
+  "puppet_task_version": 1,
+  "supports_noop": false,
+  "description": "Retrieves data from the signature store",
+  "input_method": "stdin",
+  "parameters": {
+    "commit_hash": {
+      "description": "The git SHA of the commit that you want to create a signature for",
+      "type": "String[40,40]"
+    },
+    "environment": {
+      "description": "The environment that the deployment is for",
+      "type": "String[1]",
+    }
+  }
+}

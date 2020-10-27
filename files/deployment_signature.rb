@@ -19,22 +19,32 @@ class DeploymentSignature
     raise "Failed to load config at #{config_path}: #{e}"
   end
 
+  # Save a token to the storage location
   def store(sha, environment, token)
-    sig_path = "#{signature_location}/#{environment}"
-    sig_file = "#{sig_path}/#{sha}.jwt"
+    path = sig_path(environment)
+    file = sig_file(environment, sha)
 
     # Check the file doesn't already exist
-    raise "Signature already exists at #{sig_file}" if File.exist?(sig_file)
+    raise "Signature already exists at #{file}" if File.exist?(file)
 
     # Create the parent directory if required
-    Dir.mkdir(sig_path) unless File.directory?(sig_path)
+    Dir.mkdir(path) unless File.directory?(path)
     
     # Check the signature is valid by decoding it. This will raise an error if
     # it fails
     decode(token)
 
     # Write the signature
-    File.write(sig_file, token)
+    File.write(file, token)
+  end
+
+  # Get a token from the storage location
+  def retrieve(sha, environment)
+    file = sig_file(environment, sha)
+
+    raise "Signature file #{file} does not exist" unless File.file?(file)
+
+    return decode(File.read(file))[0]
   end
 
   def valid?(token)
@@ -53,5 +63,13 @@ class DeploymentSignature
 
   def decode(token)
     JWT.decode(token, signing_secret)
+  end
+
+  def sig_path(environment)
+    "#{signature_location}/#{environment}"
+  end
+
+  def sig_file(environment, sha)
+    "#{sig_path(environment)}/#{sha}.jwt"
   end
 end

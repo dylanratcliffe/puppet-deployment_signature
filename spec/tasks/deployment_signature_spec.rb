@@ -44,4 +44,36 @@ describe DeploymentSignature do
 
     @ds.store('84f1d1edbc8924ea803ca309ae3119021acbbd4e', 'production', @good_token)
   end
+
+  it 'Should be able to return a good token' do
+    expect(File).to receive(:read).with(
+      '/tmp/production/84f1d1edbc8924ea803ca309ae3119021acbbd4e.jwt',
+    ).and_return(@good_token)
+
+    expect(File).to receive(:file?).with(
+      '/tmp/production/84f1d1edbc8924ea803ca309ae3119021acbbd4e.jwt',
+    ).and_return(true)
+
+    expect(@ds.retrieve('84f1d1edbc8924ea803ca309ae3119021acbbd4e', 'production')).to eq({'foo' => 'bar'})
+  end
+
+  it 'Should fail nicely for a token that doesnt exist' do
+    expect(File).to receive(:file?).with(
+      '/tmp/production/01237dbyugwdfukyasbdfkyagsdf.jwt',
+    ).and_return(false)
+
+    expect { @ds.retrieve('01237dbyugwdfukyasbdfkyagsdf', 'production')}.to raise_error(/does not exist/)
+  end
+
+  it 'Should fail nicely for a bad token' do
+    expect(File).to receive(:read).with(
+      '/tmp/production/84f1d1edbc8924ea803ca309ae3119021acbbd4e.jwt',
+    ).and_return(@bad_token)
+
+    expect(File).to receive(:file?).with(
+      '/tmp/production/84f1d1edbc8924ea803ca309ae3119021acbbd4e.jwt',
+    ).and_return(true)
+
+    expect { @ds.retrieve('84f1d1edbc8924ea803ca309ae3119021acbbd4e', 'production') }.to raise_error(/Signature verification/)
+  end
 end

@@ -1,0 +1,13 @@
+{
+  "puppet_task_version": 1,
+  "supports_noop": false,
+  "description": "Deploys code using r10k",
+  "input_method": "environment",
+  "parameters": {
+    "environment": {
+      "description": "The environment to deploy",
+      "type": "String[0]",
+      "default": "production"
+    }
+  }
+}
