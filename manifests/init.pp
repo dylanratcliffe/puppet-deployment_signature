@@ -1,6 +1,8 @@
-# @summary A short summary of the purpose of this class
+# @summary Sets up the dependencies for using deployment signing
 #
-# A description of what this class does
+# Gives the Puppet server that is classififed with this class the ability to verify deployment signatures that were generated using the
+# tasks and plans in this module. For this verification process to work, both the deployer and the deployment target must have
+# pre-shared knowledge of the `signing_secret`
 #
 # @param signature_location Where on disk the signatures should be stored
 # @param signing_secret Signing secret is used to actually *sign* the signature. The source of the signature needs to have the same value
@@ -8,14 +10,16 @@
 #   task, they would also need to know the value of this secret for the signatures that it generates to be valid
 # @param puppet_user The user that should own sugnatures, this should be the same user that the puppetserver runs as
 # @param puppet_group The group that should own sugnatures, this should be the same group that the puppetserver runs as
+# @param manage_jwt Whether the JWT gem should be managed by this class. If not it should be installed using some other method
 #
 # @example
 #   include deployment_signature
 class deployment_signature (
   Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
-  String $signature_location = '/etc/puppetlabs/puppet/deployment_signatures',
-  String $puppet_user        = 'pe-puppet',
-  String $puppet_group       = 'pe-puppet',
+  String  $signature_location       = '/etc/puppetlabs/puppet/deployment_signatures',
+  String  $puppet_user              = 'pe-puppet',
+  String  $puppet_group             = 'pe-puppet',
+  Boolean $manage_jwt               = true
 ) {
   # This is a hardcoded location for the main config file. Since the tasks need to know where this is it will be static, and can point at
   # all the other information
@@ -40,8 +44,10 @@ class deployment_signature (
     })),
   }
 
-  package { 'jwt':
-    ensure   => 'present',
-    provider => 'puppet_gem',
+  if $manage_jwt {
+    package { 'jwt':
+      ensure   => 'present',
+      provider => 'puppet_gem',
+    }
   }
 }

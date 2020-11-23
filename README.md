@@ -1,10 +1,6 @@
 # deployment_signature
 
-Welcome to your new module. A short overview of the generated parts can be found
-in the [PDK documentation][1].
-
-The README template below provides a starting point with details about what
-information to include in your README.
+Allows the pre-signing of code deployments. This is a very complex code deploment workflow that is inly designed for very specific use cases. It should not be adopted generally unless you have a *very* good reason for doing so.
 
 ## Table of Contents
 
@@ -19,99 +15,37 @@ information to include in your README.
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your
-module does and what kind of problems users can solve with it.
+This module allows a CI tool to pre-sign a code deployment using a pre-shared secret. When code deployment is then triggered using the `deployment_signature::signed_deployment` plan, the code is downloaded and its signature verified before it is added to file-sync.
 
-This should be a fairly short description helps the user decide if your module
-is what they want.
+The purpose of this workflow is to add another layer of auth between the Git & CI tooling and Puppet Enterprise. It also allows for customer metadata about the deployment to be sent and verified on the other end before Puppet Enterprise makes a decision to deploy the code. This could be used for:
+
+* Verification of which user approved a certain code deployment
+* Verification that a code deployment was triggered from within a CI system and not just by a rogue user that has access to the credentials
+
+Usually the above risks would be mitigated using the RBAC of CD4PE or whichever CI/CD tool that you were using. However if the integrity of this RBAC is not trusted (i.e. in a scenario where an admin were to change the settings to allow them to approve their own pull requests, then use this to deploy malicious code) then this tool could be helpful for adding an extra layer that would also need to be compromised.
+
+This tooling is not supported by Puppet or Puppet Professional Services. Use at your own discretion.
 
 ## Setup
 
 ### What deployment_signature affects **OPTIONAL**
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
+The `deployment_signature` module configures following things on the Puppet server:
 
-If there's more that they should know about, though, this is the place to
-mention:
+* `/etc/puppetlabs/puppet/deployment_signatures.yaml`: Contains configuration used to verify deployment signatures
+* `/etc/puppetlabs/puppet/deployment_signatures`: Folder containing registered deployment signatures
+* `jwt`: Gem installed using the `puppet_gem` provider
 
-* Files, packages, services, or operations that the module will alter, impact,
-  or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
-### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled,
-another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section here.
-
-### Beginning with deployment_signature
-
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most basic
-use of the module.
+The above configuration enables the use of the tasks and plans in this module.
 
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your
-users how to use your module to solve problems, and be sure to include code
-examples. Include three to five examples of the most important or common tasks a
-user can accomplish with your module. Show users how to accomplish more complex
-tasks that involve different types, classes, and functions working in tandem.
+### Basic Configuration
 
-## Reference
+Add the following to the classification for your primary puppet server:
 
-This section is deprecated. Instead, add reference information to your code as
-Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your
-module. For details on how to add code comments and generate documentation with
-Strings, see the [Puppet Strings documentation][2] and [style guide][3].
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the
-root of your module directory and list out each of your module's classes,
-defined types, facts, functions, Puppet tasks, task plans, and resource types
-and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-* The data type, if applicable.
-* A description of what the element does.
-* Valid values, if the data type doesn't make it obvious.
-* Default value, if any.
-
-For example:
-
+```puppet
+class { 'deployment_signature':
+  signing_secret => Sensitive('something_secret'),
+}
 ```
-### `pet::cat`
-
-#### Parameters
-
-##### `meow`
-
-Enables vocalization in your cat. Valid options: 'string'.
-
-Default: 'medium-loud'.
-```
-
-## Limitations
-
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
-
-## Development
-
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
-
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
-
-[1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
-[2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
-[3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
