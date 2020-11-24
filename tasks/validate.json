@@ -1,19 +1,20 @@
 {
   "puppet_task_version": 1,
   "supports_noop": false,
-  "description": "Retrieves data from the signature store",
+  "description": "Executes validation scripts as defined in the config file",
   "input_method": "stdin",
-  "files": [
+    "files": [
     "deployment_signature/files/deployment_signature.rb"
   ],
   "parameters": {
-    "commit_hash": {
-      "description": "The git SHA of the commit that you want to create a signature for",
-      "type": "String[40,40]"
-    },
     "environment": {
       "description": "The environment that the deployment is for",
       "type": "String[1]"
+    },
+    "code_staging": {
+      "description": "The code-staging location",
+      "type": "String",
+      "default": "/etc/puppetlabs/code-staging"
     }
   }
 }

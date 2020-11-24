@@ -6,14 +6,11 @@
 # @summary This deployment policy will perform a Puppet code deploy of the commit
 #          associated with a Pipeline run. 
 #
-# @param underlying_policy The deployment policy that this should defer to after the signature has been registered e.g. 
-# @param underlying_policy_params 
-# @param signature_registration_target 
-# @param signing_secret 
+# @param deployment_server The fqdn of the primary Puppet server that code should be deployed to
+# @param signing_secret Sensitve valie of a signining secret. This can be any string and needs to be the same as what was set on the
+#   target server
 plan deployment_signature::signed_deployment (
-  String            $underlying_policy,
-  Hash              $underlying_policy_params,
-  String            $signature_registration_target,
+  String            $deployment_server,
   Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
 ) {
   # Gather all the data that we possibly can
@@ -44,19 +41,74 @@ plan deployment_signature::signed_deployment (
   )
 
   # Register the signature
-  $r = run_task(
+  run_task(
     'deployment_signature::register',
-    $signature_registration_target,
+    $deployment_server,
     {
-      'commit_hash' => $deployment_info['commit'],
-      'environment' => $deployment_info['node_group_environment'],
-      'data'        => $signature,
+      'commit_hash'   => $deployment_info['commit'],
+      'environment'   => $deployment_info['node_group_environment'],
+      'data'          => $signature,
     }
   )
 
-  if $r.ok {
-    return run_plan($underlying_policy, $underlying_policy_params)
+  # Execute all code deployment tasks in a catch block so that we can do
+  # cleanup if we need to
+  $outcome = catch_errors() || {
+    # Deploy code
+    run_task(
+      'deployment_signature::r10k_deploy',
+      $deployment_server,
+      {
+        'environment' => $deployment_info['node_group_environment'],
+      }
+    )
+
+    # Write signature
+    run_task(
+      'deployment_signature::write',
+      $deployment_server,
+      {
+        'environment' => $deployment_info['node_group_environment'],
+      }
+    )
+
+    # Validate
+    run_task(
+      'deployment_signature::validate',
+      $deployment_server,
+      {
+        'environment' => $deployment_info['node_group_environment'],
+      }
+    )
+
+    # Commit
+    run_task(
+      'deployment_signature::file_sync_commit',
+      $deployment_server,
+      {
+        'message'      => 'TODO',
+        'name'         => 'TODO GET FROM APPROVAL',
+        'email'        => 'TODO GET FROM APPROVAL',
+        'submodule_id' => $deployment_info['node_group_environment'],
+      }
+    )
+  }
+
+  if $outcome =~ Error {
+    # Clean Up
+    run_task(
+      'deployment_signature::cleanup',
+      $deployment_server,
+      {
+        'environment' => $deployment_info['node_group_environment'],
+      }
+    )
+
+    fail_plan($outcome)
   } else {
-    fail_plan($r)
+    # End nicely
+    return({
+      'state' => 'success',
+    })
   }
 }

@@ -1,0 +1,17 @@
+{
+  "puppet_task_version": 1,
+  "supports_noop": false,
+  "description": "Cleans up after a failed deployment",
+  "input_method": "environment",
+  "parameters": {
+    "environment": {
+      "description": "The environment to clean up",
+      "type": "String[1]"
+    },
+    "code_staging": {
+      "description": "The code-staging location",
+      "type": "String",
+      "default": "/etc/puppetlabs/code-staging"
+    }
+  }
+}

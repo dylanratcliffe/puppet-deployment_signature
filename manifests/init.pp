@@ -11,15 +11,20 @@
 # @param puppet_user The user that should own sugnatures, this should be the same user that the puppetserver runs as
 # @param puppet_group The group that should own sugnatures, this should be the same group that the puppetserver runs as
 # @param manage_jwt Whether the JWT gem should be managed by this class. If not it should be installed using some other method
+# @param validators A series of scripts to execute to validate the deployment. These scripts will be run from the root of the deployed
+#   controlrepo and will therefore be able to access the `.deployment_signature.*` files for pulling deployment information. Scripts
+#   should exit 0 if the deployment should proceed and non-zero if it should fail. All scripts provided must exit 0 for the deployment to
+#   proceed
 #
 # @example
 #   include deployment_signature
 class deployment_signature (
-  Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
-  String  $signature_location       = '/etc/puppetlabs/puppet/deployment_signatures',
-  String  $puppet_user              = 'pe-puppet',
-  String  $puppet_group             = 'pe-puppet',
-  Boolean $manage_jwt               = true
+  Sensitive[String] $signing_secret     = Sensitive('puppetlabs'),
+  String            $signature_location = '/etc/puppetlabs/puppet/deployment_signatures',
+  String            $puppet_user        = 'pe-puppet',
+  String            $puppet_group       = 'pe-puppet',
+  Array[String]     $validators         = [],
+  Boolean           $manage_jwt         = true
 ) {
   # This is a hardcoded location for the main config file. Since the tasks need to know where this is it will be static, and can point at
   # all the other information
@@ -41,6 +46,7 @@ class deployment_signature (
     content => Sensitive(to_yaml({
       'signing_secret'     => $signing_secret.unwrap,
       'signature_location' => $signature_location,
+      'validators'         => $validators,
     })),
   }
 

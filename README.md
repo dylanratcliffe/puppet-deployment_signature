@@ -49,3 +49,52 @@ class { 'deployment_signature':
   signing_secret => Sensitive('something_secret'),
 }
 ```
+
+### Deployment Workflow
+
+When using this module it it intended to be used with a [custom deployment policy](https://puppet.com/docs/continuous-delivery/4.x/custom_deployment_policy.html#add_custom_deployment_policy) an example policy can be seen in the `deployment_signature::signed_deployment` plan. In order to use this plan, do the following:
+
+1. Create a module in the `site-modules` directory of your controlerpo named `deployments` with an appropriate `plans` directory:
+
+    ```shell
+    mkdir -p site-modules/deployment/plans
+    ```
+
+1. Copy the contents of the `deployment_signature::signed_deployment` plan from `plans/signed_deployment.pp` in this module into a new plan in your new directory with the same name i.e. `site-modules/deployments/plans/signed_deployment.pp`
+
+1. Rename the plan to reflect the fact that it is now in a different module i.e.
+
+    ```puppet
+    plan deployment_signature::signed_deployment (
+      String            $underlying_policy,
+      Hash              $underlying_policy_params,
+      String            $signature_registration_target,
+      Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
+    ) {
+      # (...)
+    }
+    ```
+
+    Would become:
+
+    ```puppet
+    plan deployments::signed_deployment (
+      String            $underlying_policy,
+      Hash              $underlying_policy_params,
+      String            $signature_registration_target,
+      Sensitive[String] $signing_secret = Sensitive('puppetlabs'),
+    ) {
+      # (...)
+    }
+    ```
+
+The new [custom deployment policy](https://puppet.com/docs/continuous-delivery/4.x/custom_deployment_policy.html#add_custom_deployment_policy) will perform the following actions:
+
+1. Gather information from CD4PE to embed in the signature. The details of this information is included in the [CD4PE example repo](https://github.com/puppetlabs/puppetlabs-cd4pe_deployments#build-your-own-policy)
+1. Wait for approval if this is a protected environment
+1. Generate a deployment signature in [JWT](https://jwt.io/) format using the supplied `$signing_secret` and embedding all CD4PE info
+1. Run a task on the `signature_registration_target` to register the signature in advance. This will fail if the signature is invalid or already exists
+1. Use the `deployment_signature::r10k_deploy` task to deploy the environment to the staging location
+1. Retrieve the signature from the store locally and write it to the `.deployment_signature.json` and `.deployment_signature.jwt` files in the root of the repository. This step will fail if the signatures are inconsistent or non-existent
+1. Execute the configured validators which will use custom logic in combination with the contents of the deployment signature to determine if the deployment should proceed. This is done using the `deployment_signature::validate` task
+1. Commit the code to file sync and therefore make available using the `deployment_signature::file_sync_commit` task
