@@ -26,7 +26,7 @@ begin
       unless status.success?
         puts({
           '_error' => {
-            'msg'     => 'Validation failed',
+            'msg'     => "Validator #{validator} failed. stdout: #{stdout}, stderr: #{stderr}",
             'kind'    => 'dylanratcliffe-deployment_signature/validate-failed-error',
             'details' => {
               'validator' => validator,
