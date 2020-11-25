@@ -30,7 +30,7 @@ begin
 
 
   # Write the files
-  File.write(filename_json, token_data.to_json)
+  File.write(filename_json, JSON.pretty_generate(token_data))
   File.write(filename_jwt, ds.retrieve_jwt(commit_hash, params['environment']))
 
   FileUtils.chown(params['owner'], params['group'], filename_json)

@@ -34,9 +34,20 @@ plan deployment_signature::signed_deployment (
   # Wait for approval if the environment is protected
   $approval_info = cd4pe_deployments::wait_for_approval($deployment_info['node_group_environment']) |String $url| { }
 
+  $update_git_ref_result = cd4pe_deployments::update_git_branch_ref(
+    $deployment_info['repo_type'],
+    $deployment_info['repo_target_branch'],
+    $deployment_info['commit']
+  )
+
+  $signature_data = $deployment_info + {
+    'approval'       => $approval_info,
+    'git_ref_update' => $update_git_ref_result,
+  }
+
   # Create the signature
-  $signature = deployment_signature::generate(
-    ($deployment_info + $approval_info),
+  $signature = deployments::generate(
+    $signature_data,
     $signing_secret.unwrap,
   )
 
@@ -86,9 +97,9 @@ plan deployment_signature::signed_deployment (
       'deployment_signature::file_sync_commit',
       $deployment_server,
       {
-        'message'      => 'TODO',
-        'name'         => 'TODO GET FROM APPROVAL',
-        'email'        => 'TODO GET FROM APPROVAL',
+        'message'      => "Deployed with a valid signature and approval dated: ${deployment_info.dig('result', 'approvalDecisionDate')}",
+        'name'         => $deployment_info.dig('result', 'approverUsername'),
+        'email'        => 'NA',
         'submodule_id' => $deployment_info['node_group_environment'],
       }
     )

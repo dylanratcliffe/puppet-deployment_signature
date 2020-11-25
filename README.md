@@ -98,3 +98,30 @@ The new [custom deployment policy](https://puppet.com/docs/continuous-delivery/4
 1. Retrieve the signature from the store locally and write it to the `.deployment_signature.json` and `.deployment_signature.jwt` files in the root of the repository. This step will fail if the signatures are inconsistent or non-existent
 1. Execute the configured validators which will use custom logic in combination with the contents of the deployment signature to determine if the deployment should proceed. This is done using the `deployment_signature::validate` task
 1. Commit the code to file sync and therefore make available using the `deployment_signature::file_sync_commit` task
+
+### Custom Validation
+
+```json
+{
+    "cd4pe_pipeline_id": "18r7oi3efjxe009305l8kbtgb1",
+    "module_name": "",
+    "control_repo_name": "puppet_controlrepo",
+    "branch": "main",
+    "commit": "0967619e91d13cc155e3312a67cef0e883bf761a",
+    "node_group_id": "321d7a76-0cc2-42f1-9b6f-c52ec0bbae51",
+    "node_group_environment": "production",
+    "repo_target_branch": "production",
+    "environment_prefix": "",
+    "repo_type": "CONTROL_REPO",
+    "deployment_domain": "d3",
+    "deployment_id": "50",
+    "deployment_token": "[redacted]",
+    "deployment_owner": "demo",
+    "result": {
+        "approvalDecision": "APPROVED",
+        "approvalDecisionDate": 1606315928416,
+        "approverUsername": "root"
+    },
+    "error": null
+}
+```
