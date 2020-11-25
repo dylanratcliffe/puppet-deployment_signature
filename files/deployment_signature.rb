@@ -15,6 +15,9 @@ class DeploymentSignature
     # Load individual config items
     @signing_secret     = @config['signing_secret']
     @signature_location = @config['signature_location']
+
+    # Remove quotes to work around CDPE-3903
+    @signing_secret.gsub!(/"/, '')
   rescue StandardError => e
     raise "Failed to load config at #{config_path}: #{e}"
   end

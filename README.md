@@ -57,7 +57,7 @@ When using this module it it intended to be used with a [custom deployment polic
 1. Create a module in the `site-modules` directory of your controlerpo named `deployments` with an appropriate `plans` directory:
 
     ```shell
-    mkdir -p site-modules/deployment/plans
+    mkdir -p site-modules/deployments/plans
     ```
 
 1. Copy the contents of the `deployment_signature::signed_deployment` plan from `plans/signed_deployment.pp` in this module into a new plan in your new directory with the same name i.e. `site-modules/deployments/plans/signed_deployment.pp`

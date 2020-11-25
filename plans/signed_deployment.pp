@@ -32,12 +32,12 @@ plan deployment_signature::signed_deployment (
   }
 
   # Wait for approval if the environment is protected
-  $approval_info = cd4pe_deployments::wait_for_approval($deployment_info['node_group_environment'])
+  $approval_info = cd4pe_deployments::wait_for_approval($deployment_info['node_group_environment']) |String $url| { }
 
   # Create the signature
   $signature = deployment_signature::generate(
     ($deployment_info + $approval_info),
-    $signing_secret,
+    $signing_secret.unwrap,
   )
 
   # Register the signature
