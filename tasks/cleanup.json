@@ -12,6 +12,15 @@
       "description": "The code-staging location",
       "type": "String",
       "default": "/etc/puppetlabs/code-staging"
+    },
+    "signature_location": {
+      "description": "The signature storage location",
+      "type": "String",
+      "default": "/etc/puppetlabs/puppet/deployment_signatures"
+    },
+    "commit_hash": {
+      "description": "The git SHA of the commit that you want to create a signature for",
+      "type": "String[40,40]"
     }
   }
 }
