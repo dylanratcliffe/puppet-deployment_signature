@@ -1,17 +1,7 @@
 # deployment_signature
 
-Allows the pre-signing of code deployments. This is a very complex code deploment workflow that is inly designed for very specific use cases. It should not be adopted generally unless you have a *very* good reason for doing so.
+Allows the pre-signing of code deployments. This is a very complex code deployment workflow that is inly designed for very specific use cases. It should not be adopted generally unless you have a *very* good reason for doing so.
 
-## Table of Contents
-
-1. [Description](#description)
-1. [Setup - The basics of getting started with deployment_signature](#setup)
-    * [What deployment_signature affects](#what-deployment_signature-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with deployment_signature](#beginning-with-deployment_signature)
-1. [Usage - Configuration options and additional functionality](#usage)
-1. [Limitations - OS compatibility, etc.](#limitations)
-1. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
@@ -101,27 +91,62 @@ The new [custom deployment policy](https://puppet.com/docs/continuous-delivery/4
 
 ### Custom Validation
 
+It is possible (and likely, since this is the main purpose of the module) to implement custom validation scrips based on the validated information contained within the deployment signature. During a deployment the signature is validated and the written to the root of the environment directory in the following files:
+
+* `deployment_signature.json`: A JSON representation of the data stored in the signature
+* `deployment_signature.jwt`: The raw JWT token
+
+Custom scripts written by the user can interrogate this information and either return `0` if the deployment should proceed or non-zero if it should fail. An example of the required Puppet code is:
+
+```puppet
+class { 'deployment_signature':
+  signing_secret => Sensitive('hunter2'),
+  validators     => [
+    '/etc/puppetlabs/puppet/validate.sh',
+  ],
+}
+
+# Create a validator that always passes
+file { '/etc/puppetlabs/puppet/validate.sh':
+  ensure  => 'file',
+  owner   => 'pe-puppet',
+  group   => 'pe-puppet',
+  mode    => '0700',
+  content => "#!/bin/bash\nexit 0",
+}
+```
+
+Note that validation scripts are run from the root of the environment meaning that the file is in the current working directory for the script. Here is an example of the JSON file:
+
 ```json
 {
-    "cd4pe_pipeline_id": "18r7oi3efjxe009305l8kbtgb1",
-    "module_name": "",
-    "control_repo_name": "puppet_controlrepo",
-    "branch": "main",
-    "commit": "0967619e91d13cc155e3312a67cef0e883bf761a",
-    "node_group_id": "321d7a76-0cc2-42f1-9b6f-c52ec0bbae51",
-    "node_group_environment": "production",
-    "repo_target_branch": "production",
-    "environment_prefix": "",
-    "repo_type": "CONTROL_REPO",
-    "deployment_domain": "d3",
-    "deployment_id": "50",
-    "deployment_token": "[redacted]",
-    "deployment_owner": "demo",
+  "cd4pe_pipeline_id": "18r7oi3efjxe009305l8kbtgb1",
+  "module_name": "",
+  "control_repo_name": "puppet_controlrepo",
+  "branch": "main",
+  "commit": "6a86f9fa527d2c4a13bb3c5409b53cc02d1a14ee",
+  "node_group_id": "321d7a76-0cc2-42f1-9b6f-c52ec0bbae51",
+  "node_group_environment": "production",
+  "repo_target_branch": "production",
+  "environment_prefix": "",
+  "repo_type": "CONTROL_REPO",
+  "deployment_domain": "d3",
+  "deployment_id": "72",
+  "deployment_token": "5s85xpun74839h0iqebr0mtrr2qtt1w888b32",
+  "deployment_owner": "demo",
+  "approval": {
     "result": {
-        "approvalDecision": "APPROVED",
-        "approvalDecisionDate": 1606315928416,
-        "approverUsername": "root"
+      "approvalDecision": "APPROVED",
+      "approvalDecisionDate": 1606320339920,
+      "approverUsername": "root"
     },
     "error": null
+  },
+  "git_ref_update": {
+    "result": {
+      "success": true
+    },
+    "error": null
+  }
 }
 ```
