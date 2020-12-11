@@ -2,7 +2,6 @@
 
 Allows the pre-signing of code deployments. This is a very complex code deployment workflow that is inly designed for very specific use cases. It should not be adopted generally unless you have a *very* good reason for doing so.
 
-
 ## Description
 
 This module allows a CI tool to pre-sign a code deployment using a pre-shared secret. When code deployment is then triggered using the `deployment_signature::signed_deployment` plan, the code is downloaded and its signature verified before it is added to file-sync.
@@ -18,7 +17,7 @@ This tooling is not supported by Puppet or Puppet Professional Services. Use at 
 
 ## Setup
 
-### What deployment_signature affects **OPTIONAL**
+### What deployment_signature affects
 
 The `deployment_signature` module configures following things on the Puppet server:
 
@@ -44,7 +43,7 @@ class { 'deployment_signature':
 
 When using this module it it intended to be used with a [custom deployment policy](https://puppet.com/docs/continuous-delivery/4.x/custom_deployment_policy.html#add_custom_deployment_policy) an example policy can be seen in the `deployment_signature::signed_deployment` plan. In order to use this plan, do the following:
 
-1. Create a module in the `site-modules` directory of your controlerpo named `deployments` with an appropriate `plans` directory:
+1. Create a module in the `site-modules` directory of your controlrepo named `deployments` with an appropriate `plans` directory:
 
     ```shell
     mkdir -p site-modules/deployments/plans
