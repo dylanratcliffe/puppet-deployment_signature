@@ -49,6 +49,21 @@ When using this module it it intended to be used with a [custom deployment polic
     mkdir -p site-modules/deployments/plans
     ```
 
+1. Copy the contents of the `deployment_signature::generate` function from `lib/puppet/functions/deployment_signature/generate.rb` in this module into a new plan in your new directory with the same name i.e. `site-modules/deployments/lib/puppet/functions/deployments/generate.rb`
+
+1. Rename the function to match the new "deployments" module. i.e.
+
+    ```ruby
+    Puppet::Functions.create_function(:'deployment_signature::generate') do
+    ```
+
+    Would become:
+
+    ```ruby
+    Puppet::Functions.create_function(:'deployments::generate') do
+    ```
+
+
 1. Copy the contents of the `deployment_signature::signed_deployment` plan from `plans/signed_deployment.pp` in this module into a new plan in your new directory with the same name i.e. `site-modules/deployments/plans/signed_deployment.pp`
 
 1. Rename the plan to reflect the fact that it is now in a different module i.e.
