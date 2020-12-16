@@ -43,10 +43,11 @@ class { 'deployment_signature':
 
 When using this module it it intended to be used with a [custom deployment policy](https://puppet.com/docs/continuous-delivery/4.x/custom_deployment_policy.html#add_custom_deployment_policy) an example policy can be seen in the `deployment_signature::signed_deployment` plan. In order to use this plan, do the following:
 
-1. Create a module in the `site-modules` directory of your controlrepo named `deployments` with an appropriate `plans` directory:
+1. Create a module in the `site-modules` directory of your controlrepo named `deployments` with an appropriate `plans` and function directory:
 
     ```shell
     mkdir -p site-modules/deployments/plans
+    mkdir -p site-modules/deployments/lib/puppet/functions/deployments
     ```
 
 1. Copy the contents of the `deployment_signature::generate` function from `lib/puppet/functions/deployment_signature/generate.rb` in this module into a new plan in your new directory with the same name i.e. `site-modules/deployments/lib/puppet/functions/deployments/generate.rb`
