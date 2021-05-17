@@ -108,10 +108,10 @@ The new [custom deployment policy](https://puppet.com/docs/continuous-delivery/4
 
 It is possible (and likely, since this is the main purpose of the module) to implement custom validation scrips based on the validated information contained within the deployment signature. During a deployment the signature is validated and the written to the root of the environment directory in the following files:
 
-* `deployment_signature.json`: A JSON representation of the data stored in the signature
-* `deployment_signature.jwt`: The raw JWT token
+* `.deployment_signature.json`: A JSON representation of the data stored in the signature
+* `.deployment_signature.jwt`: The raw JWT token
 
-Custom scripts written by the user can interrogate this information and either return `0` if the deployment should proceed or non-zero if it should fail. All scripts will be run from the root of the controlrepo that has just been deployed, meaning that in order to read the relevant signature you just need to read the file `./deployment_signature.json` or `./deployment_signature.jwt` and then perform whatever validation you want. An example of the required Puppet code is:
+Custom scripts written by the user can interrogate this information and either return `0` if the deployment should proceed or non-zero if it should fail. All scripts will be run from the root of the controlrepo that has just been deployed, meaning that in order to read the relevant signature you just need to read the file `.deployment_signature.json` or `.deployment_signature.jwt` and then perform whatever validation you want. An example of the required Puppet code is:
 
 ```puppet
 class { 'deployment_signature':
